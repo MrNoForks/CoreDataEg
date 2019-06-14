@@ -1,0 +1,466 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1671\cocoasubrtf400
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 Menlo-Regular;\f2\fnil\fcharset0 Menlo-Bold;
+\f3\fnil\fcharset0 Menlo-Italic;\f4\froman\fcharset0 Times-Roman;}
+{\colortbl;\red255\green255\blue255;\red255\green255\blue255;\red31\green31\blue36;\red252\green95\blue163;
+\red150\green134\blue245;\red108\green121\blue134;\red0\green0\blue233;\red122\green200\blue182;\red252\green106\blue93;
+}
+{\*\expandedcolortbl;;\csgenericrgb\c100000\c100000\c100000;\csgenericrgb\c12054\c12284\c14131;\csgenericrgb\c98839\c37355\c63833;
+\csgenericrgb\c58752\c52717\c95948;\csgenericrgb\c42394\c47462\c52518;\cssrgb\c0\c0\c93333;\csgenericrgb\c47716\c78607\c71403;\csgenericrgb\c98912\c41558\c36568;
+}
+\margl1440\margr1440\vieww9000\viewh8400\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 \
+\
+\pard\tx593\pardeftab593\pardirnatural\partightenfactor0
+
+\f1 \cf2 \cb3     NSPersistentContainer contains database\
+    NSManagedObject represent all entities that comes out of database (i.e.  objects 
+\f2\b \cf4 in
+\f1\b0 \cf2  database 
+\f2\b \cf4 is
+\f1\b0 \cf2  represented by NSManagedObject)\
+    Attributes are accessed on our NSManagedObjects via the methods value(forKey:) and setValue(
+\f2\b \cf4 _
+\f1\b0 \cf2 , forKey:)\
+    NSManagedObjectContext to access entity and attribute which are 
+\f2\b \cf4 in
+\f1\b0 \cf2  NSManagedObject\
+    \
+    How to get a context ? You use NSPersistentContainer and from that you get Context\
+    \
+    transient 
+\f2\b \cf4 is
+\f1\b0 \cf2  
+\f2\b \cf4 for
+\f1\b0 \cf2  temporary data that last database 
+\f2\b \cf4 is
+\f1\b0 \cf2  shutdown \
+     A relationship 
+\f2\b \cf4 is
+\f1\b0 \cf2  analogous to a pointer to another object (or an NSSet of other object)\
+     e.g. relationship 
+\f2\b \cf4 is
+\f1\b0 \cf2  just gonna be 
+\f2\b \cf4 var
+\f1\b0 \cf2  
+\f2\b \cf4 in
+\f1\b0 \cf2  entity 
+\f2\b \cf4 class
+\f1\b0 \cf2  but its 
+\f2\b \cf4 var
+\f1\b0 \cf2  type gonna be 
+\f2\b \cf4 if
+\f1\b0 \cf2  its gonna be tweet its gonna be single \cf5 1\cf2  or its NSSet 
+\f2\b \cf4 if
+\f1\b0 \cf2  its many of them like a twitter User might have many tweets\
+    type of relation on tweets side 
+\f2\b \cf4 is
+\f1\b0 \cf2  still NSManagedObject because it points to another entity 
+\f2\b \cf4 in
+\f1\b0 \cf2  database and we know objects 
+\f2\b \cf4 in
+\f1\b0 \cf2  database 
+\f2\b \cf4 is
+\f1\b0 \cf2  referenced by NSManagedObject\
+    but on other side i.e. tweeter the type of relation 
+\f2\b \cf4 var
+\f1\b0 \cf2  
+\f2\b \cf4 is
+\f1\b0 \cf2  NSSet of NSManagedObject\
+    \
+    Delete Rule define what happens to tweets when we delete with twitterUser Nullify(means No those tweets will stay 
+\f2\b \cf4 in
+\f1\b0 \cf2  database and that tweeter will be set to 
+\f2\b \cf4 nil
+\f1\b0 \cf2  because tweeter got deleted)\
+    cascading delete everything that 
+\f2\b \cf4 is
+\f1\b0 \cf2  related to that thing \
+    \
+    we can have multiple databases\
+    \
+    attributes values start out 
+\f2\b \cf4 default
+\f1\b0 \cf2  but 
+\f2\b \cf4 if
+\f1\b0 \cf2  doesnt it will be 
+\f2\b \cf4 nil\
+\
+\
+\
+
+\f1\b0 \cf2     
+\f3\i \cf6 //Inserting Objects in DB
+\f1\i0 \cf2 \
+    \
+        
+\f3\i \cf6 //How to access entity
+\f1\i0 \cf2 \
+            
+\f3\i \cf6 // let tweet : NSManagedObject = NSEntityDescription.insertNewObject(forEntityName : "Tweet" , into : viewContext)
+\f1\i0 \cf2 \
+    \
+        
+\f3\i \cf6 //How To access attribute
+\f1\i0 \cf2 \
+            
+\f3\i \cf6 //We access them using NSKeyValueCoding protocol methods ...\
+			func value(forKey : String) -> Any?\
+			func setValue(Any?, forKey : String)
+\f1\i0 \cf2 \
+    \
+    			Using value(forKeyPath : ) / setValue( _ ,forKeyPath : ) \
+            
+\f3\i \cf6 //let username = tweet.value(forKeyPath : "tweeter.name") as? String\
+			// dot will follow relationships    that is tweeter is in tweet entity and name is in twitterUser\
+\
+			Terrible API its Any so there's no type-checking going there\
+			tweet.setValue(Date,forKey : "text")\
+			And this would be perfectly accepted by swift but ofcourse that's gonna fail miserably on runtime because the "text" is the "string" \
+\
+			This is underlying how coredata is doing things \
+			\
+			key is attribute name\
+			\
+			value is whatever is stored\
+			It will be nil if nothing has been stored yet \
+	(*****)		If you are storing thing in Database is Int,Double or Float , etc. then its gonna store in database as an NSNumber which is a class(object) which is an generic holder of numbers \
+If we flip the button in xcdatamodel for type of attribute the "scalar type" Then its gonna save it as Double, Int or whatever instead of NSNumber\
+Binary data values are NSData\
+Date values are NSDate \
+"To-many" relationships are NSSets but can be cast (with as? ) to Set<NSManagedObject>\
+"To-one" relationships are NSManagedObjects\
+\
+\
+\
+All the above stuffs happens in Memory \
+If you want to happen permanently in database you have to save it \
+And you do that by saying viewContext.save() except it can throw \
+\
+Calling value(forKey : String) / setValue(Any?, forKey : String) is pretty ugly\
+	There's no type checking\
+	And you have a lot of literal strings in your code (e.g. "text" )\
+\
+What we really want is to set/get using vars.....!!!\
+We gonna do that by using subclass of NSManagedObject \
+The subclass will have vars for each attribute \
+ \
+We name our subclass the same as the Entity it matches\
+We can get Xcode to generate all the code necessary to make this work\
+\
+\
+When you update 1 side of relationship the other side gets updated automatically , this is called maintaining integrity of database and core Data always maintains integrity of database \
+(*****) CoreData always maintains integrity of database\
+\
+\
+\
+// let joe = TwitterUser( context : tweet.managedObjectContext )\
+Every NSManagedObject knows the managedObjectContext it is in.\
+\
+\
+/////Deletion\
+\
+\
+ \
+	managedObjectContext.delete(_ object : tweet)\
+\
+\
+	RelationShip will be updated for you\
+	Dont keep any strong pointers to tweet after you delete it!\
+\
+\
+\
+when things gets deleted from database it gets sent this message first \
+You dont have to worry about pointer here that is pointing to you that's all fixed by the delete rule \
+\
+	func prepareForDeletion()\{\
+	\}\
+\
+\
+\
+\
+\
+// Querying\
+NSFetchRequest \
+\
+NSFetchRequest encapsulates what you want from database\
+\
+3 important things involved in creating an NSFetchRequest \
+1)Entity to fetch(required)  (what entity we are fetching because fetch request can fetch only 1 kind of entity)(There's nothing as fetchRequest that will give some tweets or some twitterUser)\
+2)NSSortDescriptors to specify the order in which the Array of fetched objects are returned  (fetch comes back as array matching once array are not set they are ordered)\
+3)NSPredicate specifying which of those Entities to fetch  (Which node we want)\
+\
+\
+\
+\
+\
+let request : NSFetchRequest<Tweet> = Tweet.fetchRequest()\
+(note this is a rare circumstance where swift cannot infer the type)\
+\
+\
+\
+\
+NSSortDescriptor\
+let sortDescriptor = NSSortDescriptor(\
+	key : "screenName",ascending : true,\
+	selector : #selector(NSString.localizedStandardCompare(_:))  //can skip this .... It is usually just compare\
+)\
+\
+We give an Array of these NSSortDescriptors to the NSFetchRequest because sometimes we want to sort first by one key then within that sort by another\
+Example : [lastNameSortDescriptor , firstNameSortDescriptor]\
+\
+\
+\
+NSPredicate\
+//{\field{\*\fldinst{HYPERLINK "https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Predicates/Articles/pSyntax.html#//apple_ref/doc/uid/TP40001795"}}{\fldrslt 
+\f4\i0 \cf7 \cb1 \expnd0\expndtw0\kerning0
+\ul \ulc7 https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Predicates/Articles/pSyntax.html#//apple_ref/doc/uid/TP40001795}}\
+let searchString = "foo"\
+let predicate = NSPredicate(format : "text contains[c] %@",searchString)\
+\
+let joe : TwitterUser = ... // a TwitterUser we inserted or queried from the database\
+let predicate = NSPredicate(format : "tweeter = %@ && created > %@",joe,aDate)\
+let predicate = NSPredicate(format : "tweeter.screenName = %@","CS193P")\
+\
+\
+\
+\
+All above predicates where for Tweet table only\
+\
+Here's a predicate for TwitterUser\
+let predicate = NSPredicate(format : "tweets.text contains %@",searchString)\
+This would be used to find TwitterUsers (not Tweets)who have tweets that contain string \
+\
+\
+\
+NSCompoundPredicate\
+\
+You can use And and OR inside a predicate string , e.g. "(name = %@) OR (title = %@)"\
+Or you can combine NSPredicate objects with NSCompoundPredicates\
+\
+let predicates = [predicate1 , predicate2]\
+let andPredicate = NSCompoundPredicate(andPredicateWithSubpredicates : predicates)\
+This andPredicate is "predicate1 AND predicate2"\
+\
+Why use NSCompoundPredicates over &&(and) or ||(or)?\
+May be when we need computed property for predicate we can use it \
+\
+\
+\
+(*)Function Predicates\
+Can actually do predicates like "tweets.@count > 5" (TwitterUsers with more than 5 tweets)\
+@count is a function (there are others) executed in the database itself\
+\
+\
+\
+\
+\
+Putting all things together\
+\
+\
+
+\f1\i0 \cf2     
+\f2\b \cf4 let
+\f1\b0 \cf2  request : \cf8 \cb3 NSFetchRequest\cf2 \cb3 <\cf8 \cb3 TwitterUsers\cf2 \cb3 > = TwitterUsers.fetchRequest()\
+    \
+    
+\f2\b \cf4 let
+\f1\b0 \cf2  yesterday = \cf8 \cb3 Date\cf2 \cb3 (timeIntervalSinceNow: \cf5 -24\cf2 *\cf5 60\cf2 *\cf5 60\cf2 )\
+    \
+    request.predicate = NSPredicate(format : \cf9 \cb3 "any tweets.created > %@"\cf2 \cb3 ,yesterday)\
+    \
+    ...sorted by the TwitterUser's name\
+    \
+    request.sortDescriptors = [NSSortDescriptor(key : \cf9 \cb3 "name"\cf2 \cb3  , ascending : 
+\f2\b \cf4 true
+\f1\b0 \cf2 )]
+\f3\i \cf6 \
+\
+\
+\
+\
+\
+Executing The fetch\
+\
+let context = AppDelegate.viewContext\
+let recentTweeters = try? context.fetch(request)\
+\
+\
+Usually it fails when predicate is wrong and returns nil\
+If passes it return optional array\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+(*****)\
+Faulting\
+What if it matches a million things are you gonna get million tweets back in 1 request like this? No.\
+ You get an array from database which is really smart array , it actually doesnt actually brings back data from the database until you start asking for it \
+Until i ask for certain user information of twitterUser like twitterName , screenName , the twitterUser didnt get faulted from the database\
+\
+\
+The above fetch does not necessarily fetch actual data\
+IT could be an Array of "as yet unfaulted" objects , waiting for you to access their attributes\
+Core Data is very smart about "faulting" the data in as it is actually accessed\
+\
+e.g.\
+for user in recentTweeters \{\
+print("fetched user \\(user)")\
+\}\
+\
+It will print faulting shell as we have not asked for data\
+\
+You may or may not see the names of the users in the output\
+You might just see "unfaulted object" depending on whether it has already fetched them\
+\
+\
+\
+for user in recentTweeters\{\
+print("fetched user name \\(user.name)")\
+\}\
+\
+\
+..then you would definitely fault all these TwitterUsers in from the database\
+(****)\
+This for loop will fault all objects now it doesnt do 1 by 1\
+ it does it in batches \
+It's very high performance\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+MultiThreading\
+\
+\
+context.performBlock \{ // or performBlockAndWait until it finishes\
+// do stuff with context (this will happen in its safe Queue (The Queue it was created on))\
+\
+\}\
+
+\f1\i0 \cf2 \
+Note :- That the Q might be the main Q , so you are not necessarily getting multithreaded\
+It's generally a good idea to wrap all your Core Data code using this\
+Although if you have no multithreaded code at all in your app , you can probably skip it\
+It wont cost anything if its not in a multithreaded situation\
+Use when you have multi context and multiple queues and they are accessing things this is a good way to be safe\
+ It will execute on proper queue even if it has to dispatch it will do it if it has to do it \
+If it doesnt have to do it and if you are on the right queue it will just execute it fine\
+But if you are on wrong queue it will dispatch it\
+
+\f3\i \cf6 performBlockAndWait get in on right Q and wait until its done and then continue in your Q\
+\
+\
+\
+\
+How to get context on different Q?\
+\
+finds a other Q and create a context in that Q and executes the closure on that other Q in the background\
+\
+AppDelegate.persistentContainer.performBackgroundTask \{context in\
+\
+//never use viewContext here because by definition this closure is not working on main Q\
+// dont do UI Stuff here , this closure is not main queue\
+//Dont forgot to save\
+\
+\
+try? context.save()\
+\}
+\f1\i0 \cf2 \
+\
+\
+\
+\
+\
+\
+All the loading on background Queue and all fetching in main Queue\
+\
+\
+\
+RnD on  CoreData is hugh\
+Optimistic locking (deleteConflictsForObjects)\
+Rolling back unsaved changes\
+Undo / redo\
+Staleness (how long after a fetch until a refetch of an object is required?)\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+CoreData and UITableView\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f0 \cf0 \cb1 {{\NeXTGraphic Screenshot 2019-06-13 at 12.14.06 PM.png \width14660 \height4720 \appleattachmentpadding0 \appleembedtype0 \appleaqc
+}¬}{{\NeXTGraphic Screenshot 2019-06-13 at 12.14.23 PM.png \width16420 \height7660 \appleattachmentpadding0 \appleembedtype0 \appleaqc
+}¬}{{\NeXTGraphic Screenshot 2019-06-13 at 12.14.44 PM.png \width15820 \height8140 \appleattachmentpadding0 \appleembedtype0 \appleaqc
+}¬}\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf0 {{\NeXTGraphic Screenshot 2019-06-13 at 12.16.28 PM.png \width15800 \height8940 \appleattachmentpadding0 \appleembedtype0 \appleaqc
+}¬}\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf0 \
+\
+If request changes caches must be invalidated\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf0 {{\NeXTGraphic Screenshot 2019-06-13 at 12.17.51 PM.png \width16360 \height7040 \appleattachmentpadding0 \appleembedtype0 \appleaqc
+}¬}\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf0 \
+\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf0 {{\NeXTGraphic Screenshot 2019-06-13 at 12.20.51 PM.png \width16100 \height8080 \appleattachmentpadding0 \appleembedtype0 \appleaqc
+}¬}\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf0 \
+\
+In CoreData we do schema using this visual mapper \
+On cloudKit its schema on the fly (as you starting saving var it start making schema)\
+\
+
+\f1 \cf2 \cb3 \
+\pard\tx593\pardeftab593\pardirnatural\partightenfactor0
+\cf2 -) NSFetchedResultsController\
+Hooks up live connection between NSFetchRequest up to a UITableViewController\
+You can see live changes of database in tableView\
+\
+\
+2 ways:-\
+		1) It has a delegate so set to UITableViewController and whenever it see's something in the database that affects that  fetch request  it tells TableViewController do this that , add This section , reload this row \
+		2) It provides implementaion for all of UITableView Datasource\
+\
+\
+\
+\
+\
+Things to do:-\
+1)Subclass FetchedResultsTableViewController to get NSFetchedResultsControlllerDelegate\
+2) Add a var called fetchedResultsController initialized with the NSFetchRequest you want\
+3)Implement your UITableViewDataSource methods using this fetchedResultsController var\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+}
